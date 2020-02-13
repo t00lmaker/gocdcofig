@@ -19,7 +19,7 @@ pipelines:
       - build:
           clean_workspace: true
           jobs:
-            maven:
+            build-maven:
               resources:
                 - build
               artifacts:
