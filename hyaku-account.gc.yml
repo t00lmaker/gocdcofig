@@ -1,5 +1,5 @@
 pipelines:
-  sre-ms-ec:
+  hyaku:
     group: delivery
     environment_variables:
         PROJECT_GROUP: "sre"
