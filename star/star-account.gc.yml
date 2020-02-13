@@ -1,0 +1,66 @@
+pipelines:
+  sre-ms-ec:
+    group: delivery
+    environment_variables:
+        PROJECT_GROUP: "sre"
+        PUBLISH_AWS: "true"
+    materials:
+      project-code:
+        git: git@gitlab.cielocorp.cloud:sre/app/ms-ec.git
+        branch: release
+        destination: project
+      scripts-code:
+        git: git@gitlab.cielocorp.cloud:devopsCloud/scripts.git
+        branch: master
+        blacklist:
+          - '**/*'
+        destination: scripts
+    stages:
+      - build:
+          clean_workspace: true
+          jobs:
+            maven:
+              resources:
+                - build
+              artifacts:
+                - build:
+                    source: project/target
+              tasks:
+                - exec:
+                    command: /usr/bin/mvn
+                    arguments:
+                      - install
+                      - -f
+                      - project/
+      - inspect:
+          clean_workspace: true
+          jobs:
+            sonar:
+              resources:
+                - build
+              tasks:
+                - fetch:
+                    stage: build
+                    job: maven
+                    source: target
+                    destination: project
+                - exec:
+                    command: python3
+                    arguments:
+                      - /opt/scripts/inspect/maven.py
+      - publish:
+          clean_workspace: true
+          jobs:
+            docker:
+              resources:
+                - publish
+              tasks:
+                - fetch:
+                    stage: build
+                    job: maven
+                    source: target
+                    destination: project
+                - exec:
+                    command: python3
+                    arguments:
+                      - scripts/publish/docker_image.py
