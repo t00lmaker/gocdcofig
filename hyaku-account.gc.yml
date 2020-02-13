@@ -6,11 +6,11 @@ pipelines:
         PUBLISH_AWS: "true"
     materials:
       project-code:
-        git: git@gitlab.cielocorp.cloud:sre/app/ms-ec.git
-        branch: release
+        git: https://github.com/t00lmaker/apiStransTHE.git
+        branch: master
         destination: project
       scripts-code:
-        git: git@gitlab.cielocorp.cloud:devopsCloud/scripts.git
+        git: https://github.com/t00lmaker/gocd-scripts.git
         branch: master
         blacklist:
           - '**/*'
@@ -32,35 +32,3 @@ pipelines:
                       - install
                       - -f
                       - project/
-      - inspect:
-          clean_workspace: true
-          jobs:
-            sonar:
-              resources:
-                - build
-              tasks:
-                - fetch:
-                    stage: build
-                    job: maven
-                    source: target
-                    destination: project
-                - exec:
-                    command: python3
-                    arguments:
-                      - /opt/scripts/inspect/maven.py
-      - publish:
-          clean_workspace: true
-          jobs:
-            docker:
-              resources:
-                - publish
-              tasks:
-                - fetch:
-                    stage: build
-                    job: maven
-                    source: target
-                    destination: project
-                - exec:
-                    command: python3
-                    arguments:
-                      - scripts/publish/docker_image.py
